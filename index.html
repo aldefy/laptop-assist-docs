@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>slack-claude setup</title>
 <meta name="description" content="Set up your own Slack bot that runs Claude Code on your Mac.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,28 +13,16 @@
 <style>
 /* Nothing-inspired hero (Doto), IBM Plex superfamily for reading: Sans for prose and headings, Mono only for commands, code and data. */
 :root {
-  --bg: #000000; --surface: #111111; --raised: #1a1a1a;
-  --border: #222222; --border-visible: #333333;
-  --t-disabled: #7a7a7a; --t-secondary: #a3a3a3; --t-primary: #e8e8e8; --t-display: #ffffff;
-  --accent: #d71921; --success: #4a9e5c; --link: #5b9bf6;
+  /* Light only: the page is the white sheet the hand-drawn illustrations are drawn on. */
+  color-scheme: light;
+  --bg: #ffffff; --surface: #f6f6f5; --raised: #efefed;
+  --border: #ececea; --border-visible: #d4d4d2;
+  --t-disabled: #6b6b6b; --t-secondary: #555553; --t-primary: #1c1c1b; --t-display: #0a0a0a;
+  --accent: #d71921; --success: #2f7a45; --link: #0062cc;
   --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "IBM Plex Mono", "SF Mono", Menlo, ui-monospace, monospace;
   --dot: "Doto", "IBM Plex Mono", monospace;
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f5f5f5; --surface: #ffffff; --raised: #f0f0f0;
-    --border: #e8e8e8; --border-visible: #cccccc;
-    --t-disabled: #6b6b6b; --t-secondary: #525252; --t-primary: #1a1a1a; --t-display: #000000;
-    --link: #0062cc;
-  }
-}
-:root[data-theme="light"] {
-  --bg: #f5f5f5; --surface: #ffffff; --raised: #f0f0f0;
-  --border: #e8e8e8; --border-visible: #cccccc;
-  --t-disabled: #6b6b6b; --t-secondary: #525252; --t-primary: #1a1a1a; --t-display: #000000;
-  --link: #0062cc;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -60,6 +50,11 @@ code { overflow-wrap: anywhere; }
 
 /* Hero */
 .hero { padding: 72px 0 96px; background-image: radial-gradient(circle, var(--border-visible) 1px, transparent 1px); background-size: 16px 16px; background-position: -8px -8px; border-bottom: 1px solid var(--border); }
+.hero .wrap { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+@media (min-width: 960px) { .hero .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 32px; } }
+.hero-art { margin: 0; }
+/* multiply drops the drawing's white paper so the dot grid shows through */
+.hero-art img { display: block; width: 100%; height: auto; mix-blend-mode: multiply; }
 .hero h1 { font: 800 clamp(48px, 11vw, 132px)/0.92 var(--dot); letter-spacing: -0.02em; color: var(--t-display); margin: 0 0 32px; background: var(--bg); display: inline-block; padding: 4px 8px 4px 0; }
 .hero p { font: 400 clamp(20px, 2.2vw, 24px)/1.4 var(--sans); max-width: 32ch; color: var(--t-primary); margin: 0 0 40px; background: var(--bg); padding-right: 8px; }
 .btn { display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px; font: 700 13px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; background: var(--t-display); color: var(--bg); transition: opacity 200ms var(--ease); }
@@ -150,9 +145,9 @@ p { max-width: 68ch; }
 .cmds code { background: transparent; padding: 0; }
 .cmds span { color: var(--t-secondary); font-size: 16px; text-align: right; }
 
-/* Illustrations: hand-drawn on white paper, framed as a sheet on the dark page */
-.art { margin: 48px 0 0; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-visible); }
-.art img { display: block; width: 100%; height: auto; }
+/* Illustrations: drawn on white, they sit straight on the page */
+.art { margin: 48px 0 0; }
+.art img { display: block; width: 100%; height: auto; mix-blend-mode: multiply; }
 .art.lead-art { margin: 0 0 48px; }
 
 /* Troubleshooting */
@@ -186,9 +181,12 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
 <div class="hero">
   <div class="wrap">
+    <div>
     <h1>DM YOUR<br>LAPTOP.</h1>
     <p>A Slack bot of your own that runs Claude Code on your Mac, in your repo, under your login.</p>
     <a class="btn" href="#install">Start setup <span aria-hidden="true">&#8595;</span></a>
+    </div>
+    <figure class="hero-art"><img src="img/hero.webp" width="1448" height="1086" fetchpriority="high" decoding="async" alt="Line drawing of an open MacBook with a small red lock on its bezel. Two speech bubbles are wired to the screen: a message going in and a shorter reply coming out."></figure>
   </div>
 </div>
 
@@ -197,7 +195,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <h2>How it works</h2>
     <p class="lead">There's no shared bot. Everyone runs their own copy, and each copy talks to exactly one person.</p>
 
-<figure class="art lead-art"><img src="img/01-private-local-loop.webp" width="1536" height="864" fetchpriority="high" decoding="async" alt="Hand-drawn illustration: a person holds one orange thread that runs into a locked laptop labelled local and owner only. Inside, a small black character takes the DM note off the thread and clips an answer back on, and the same thread returns to the same person."></figure>
+<figure class="art lead-art"><img src="img/01-private-local-loop.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a person holds one orange thread that runs into a locked laptop labelled local and owner only. Inside, a small black character takes the DM note off the thread and clips an answer back on, and the same thread returns to the same person."></figure>
     <div class="path">
       <div>
         <span class="label">Slack</span>
