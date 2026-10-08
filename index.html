@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>slack-claude setup</title>
+<meta name="description" content="Set up your own Slack bot that runs Claude Code on your Mac.">
+<style>
+:root {
+  --bg: #fbfaf7; --fg: #1d1c1a; --muted: #6b675f; --line: #e4e0d8; --card: #ffffff;
+  --code-bg: #f3f1ec; --accent: #b4532a; --ok: #2f7a4b; --warn-bg: #fff6e5; --warn-line: #e8c37a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161514; --fg: #ecebe7; --muted: #a39f96; --line: #2e2c29; --card: #1e1d1b;
+    --code-bg: #232220; --accent: #e08a5f; --ok: #6cc28f; --warn-bg: #2a2418; --warn-line: #6b5527;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161514; --fg: #ecebe7; --muted: #a39f96; --line: #2e2c29; --card: #1e1d1b;
+  --code-bg: #232220; --accent: #e08a5f; --ok: #6cc28f; --warn-bg: #2a2418; --warn-line: #6b5527;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 48px 16px 96px; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 1.3rem; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 28px 0 8px; }
+p, li { color: var(--fg); }
+.lede { color: var(--muted); font-size: 1.1rem; margin: 0 0 24px; }
+a { color: var(--accent); }
+code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.cmd { position: relative; margin: 12px 0; }
+.cmd pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 14px 16px; overflow-x: auto; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.cmd button { position: absolute; top: 8px; right: 8px; font: 12px/1 inherit; padding: 6px 10px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--card); color: var(--muted); cursor: pointer; }
+.cmd button:hover { color: var(--fg); }
+.note { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+.note strong { display: block; margin-bottom: 2px; }
+.toc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 20px; }
+.toc ol { margin: 6px 0; padding-left: 20px; }
+.flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.flow div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 0.92rem; }
+.flow b { display: block; color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; }
+.check { color: var(--ok); }
+footer { margin-top: 64px; color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 600px) { .flow { grid-template-columns: 1fr; } h1 { font-size: 1.6rem; } }
+</style>
+</head>
+<body>
+<main>
+<h1>slack-claude setup</h1>
+<p class="lede">Your own Slack bot that runs Claude Code on your own Mac. You DM it a question, it works in your repo with your Claude login and your tools, and replies in the thread.</p>
+
+<div class="toc"><strong>On this page</strong>
+<ol>
+<li><a href="#how">How it works</a></li>
+<li><a href="#access">Get access</a></li>
+<li><a href="#prereqs">Prerequisites</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#slack-app">Create your Slack app</a></li>
+<li><a href="#setup">Run setup</a></li>
+<li><a href="#use">Use it</a></li>
+<li><a href="#modes">Read and write threads</a></li>
+<li><a href="#reviews">PR review drafts and posting</a></li>
+<li><a href="#upgrade">Upgrade, status, logs</a></li>
+<li><a href="#trouble">Troubleshooting</a></li>
+<li><a href="#faq">FAQ</a></li>
+</ol></div>
+
+<h2 id="how">1. How it works</h2>
+<p>Everyone runs their <strong>own copy</strong>. There is no shared bot.</p>
+<div class="flow">
+<div><b>Slack</b>You DM your own bot app. It only listens to your Slack member ID; anyone else is ignored.</div>
+<div><b>Your Mac</b>A small background service receives the DM over an outbound websocket (no public URL) and starts a locked-down Claude Code run.</div>
+<div><b>Reply</b>The answer comes back in the same thread. Replying in the thread continues the same Claude session.</div>
+</div>
+<ul>
+<li><strong>Your bot, your account.</strong> It runs with your Claude login, so usage counts against your Claude plan.</li>
+<li><strong>Who it posts as.</strong> In Slack it only posts in your DM with your bot. On GitHub (write threads only) it posts as whoever is logged into <code>gh</code> on your Mac, so it's you.</li>
+<li><strong>Mac asleep means bot offline.</strong> Messages sent while the lid is closed are picked up when it reconnects.</li>
+</ul>
+
+<h2 id="access">2. Get access</h2>
+<p>The code and the Homebrew tap are private repositories. Send your <strong>GitHub username</strong> to <a href="https://github.com/aldefy">@aldefy</a> and ask for read access to:</p>
+<ul>
+<li><code>aldefy/slack-claude</code> (the code)</li>
+<li><code>aldefy/homebrew-private</code> (the Homebrew tap)</li>
+</ul>
+<p>Accept both invitations (GitHub emails you, or check <a href="https://github.com/notifications">notifications</a>) before you install.</p>
+
+<h2 id="prereqs">3. Prerequisites</h2>
+<table>
+<tr><th>Need</th><th>Check</th></tr>
+<tr><td>A Mac (macOS only: it uses the Keychain and launchd)</td><td>-</td></tr>
+<tr><td><a href="https://brew.sh">Homebrew</a></td><td><code>brew --version</code></td></tr>
+<tr><td><a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>, installed and logged in</td><td><code>claude --version</code>, then run <code>claude</code> once and log in</td></tr>
+<tr><td>GitHub CLI, logged in</td><td><code>gh auth status</code></td></tr>
+<tr><td>An SSH key on your GitHub account (the tap clones over SSH)</td><td><code>ssh -T git@github.com</code> should greet you by name</td></tr>
+<tr><td>The repo you want Claude to work in, cloned locally</td><td>Note its absolute path</td></tr>
+</table>
+<p>Optional: any MCP servers you already use in Claude Code (Sentry, Mixpanel, Jira, Slack…). The bot reuses your existing logins and only exposes their read/query tools.</p>
+
+<h2 id="install">4. Install</h2>
+<div class="cmd"><pre>brew tap aldefy/private git@github.com:aldefy/homebrew-private.git
+brew install slack-claude</pre></div>
+<p>If the tap fails with <code>Repository not found</code> or <code>Permission denied (publickey)</code>, your access invite isn't accepted yet or your SSH key isn't on GitHub. See <a href="#trouble">Troubleshooting</a>.</p>
+
+<h2 id="slack-app">5. Create your Slack app</h2>
+<p>Each person creates their own app from the same manifest.</p>
+<h3>5.1 Copy the manifest</h3>
+<div class="cmd"><pre>slack-claude manifest</pre></div>
+<p>This prints the manifest and copies it to your clipboard.</p>
+<div class="note"><strong>Give your bot a unique name</strong>Before pasting, change <code>name</code> and <code>display_name</code> from <code>Claude Laptop</code> to something like <code>Claude (Priya)</code>. Otherwise the workspace fills up with identical "Claude Laptop" apps.</div>
+<h3>5.2 Create the app</h3>
+<ol>
+<li>Open <a href="https://api.slack.com/apps">api.slack.com/apps</a> and click <strong>Create New App</strong>.</li>
+<li>Choose <strong>From a manifest</strong>, pick your workspace, select <strong>YAML</strong>, paste, click <strong>Create</strong>.</li>
+<li>Click <strong>Install to &lt;workspace&gt;</strong>, then <strong>Allow</strong>. If your workspace needs admin approval for new apps, this step waits for an admin.</li>
+</ol>
+<h3>5.3 Collect the two tokens</h3>
+<ol>
+<li><strong>App-level token:</strong> <em>Basic Information → App-Level Tokens → Generate Token and Scopes</em>. Add scope <code>connections:write</code>, generate, copy the <code>xapp-…</code> value.</li>
+<li><strong>Bot token:</strong> <em>OAuth &amp; Permissions</em> → copy the <strong>Bot User OAuth Token</strong> (<code>xoxb-…</code>).</li>
+</ol>
+<h3>5.4 Lock it down</h3>
+<ul>
+<li><em>Collaborators</em>: keep it to just you.</li>
+<li><em>Interactivity &amp; Shortcuts</em>: should already be <strong>On</strong> from the manifest (it powers the Read/Write buttons).</li>
+</ul>
+<p>Treat both tokens like passwords. Don't paste them in Slack, tickets or files.</p>
+
+<h2 id="setup">6. Run setup</h2>
+<div class="cmd"><pre>slack-claude setup</pre></div>
+<p>It walks through six steps:</p>
+<ol>
+<li><strong>Checks</strong> that <code>claude</code>, <code>git</code> and <code>gh</code> are on your PATH.</li>
+<li><strong>Slack tokens:</strong> paste the <code>xapp-…</code> and <code>xoxb-…</code> tokens. Input is hidden; they're stored in the macOS Keychain, never on disk.</li>
+<li><strong>You:</strong> your Slack member ID. In Slack: your profile → <strong>⋯</strong> → <strong>Copy member ID</strong> (looks like <code>U0123ABCD</code>). This is the only person the bot will answer.</li>
+<li><strong>Repo:</strong> the absolute path of the repo Claude should work in, e.g. <code>/Users/you/code/app</code>.</li>
+<li><strong>Self-test</strong> (about $0.10): one real, locked-down Claude run. It tries to write a file and <strong>refuses to finish setup if the write succeeds</strong>.</li>
+<li><strong>Service:</strong> installs a background service that starts at login. Optionally adds a menu-bar icon (needs <code>brew install --cask swiftbar</code>).</li>
+</ol>
+<p>Config lands in <code>~/.config/slack-claude/config.json</code> (repo path, per-message budget up to $5, timeout up to 20 min, dashboard port).</p>
+
+<h2 id="use">7. Use it</h2>
+<p>Open Slack, find your app under <em>Apps</em>, and DM it. Examples:</p>
+<div class="cmd"><pre>top 5 Sentry issues in the last 24h</pre></div>
+<div class="cmd"><pre>review PR 1285 with android-pr-review</pre></div>
+<div class="cmd"><pre>what are my other Claude sessions doing?</pre></div>
+<ul>
+<li>New DM = new question. Reply in the thread for a follow-up with the same context.</li>
+<li><code>stop</code> in a thread cancels the run. <code>status</code> reports health.</li>
+<li>Each answer ends with time, cost, tokens, turns and model.</li>
+<li>React 👍 or 👎 on answers; the local dashboard tracks quality.</li>
+<li>Local dashboard: <a href="http://127.0.0.1:7317">http://127.0.0.1:7317</a> (only reachable from your Mac).</li>
+</ul>
+
+<h2 id="modes">8. Read and write threads</h2>
+<p>Every thread is either <strong>read</strong> or <strong>write</strong>. A new DM asks which (buttons, or reply <code>read</code> / <code>write</code>). Start a DM with <code>read:</code> or <code>write:</code> to skip the question. <code>mode</code> shows the current one; replying <code>read</code> or <code>write</code> switches.</p>
+<table>
+<tr><th></th><th>Read (default)</th><th>Write</th></tr>
+<tr><td>Read code, search, git log/diff/blame</td><td class="check">yes</td><td class="check">yes</td></tr>
+<tr><td>Query connected tools (Sentry, analytics, Jira, Slack read)</td><td class="check">yes</td><td class="check">yes</td></tr>
+<tr><td>Edit files, local git add/commit</td><td>no</td><td class="check">yes</td></tr>
+<tr><td>Run unit tests / compile</td><td>no</td><td class="check">yes</td></tr>
+<tr><td>Comment on a PR, post a COMMENT review with inline comments</td><td>no</td><td class="check">yes</td></tr>
+<tr><td>Push, delete files, reset, arbitrary shell, approve or merge PRs</td><td>no</td><td>no</td></tr>
+<tr><td>Message or drive your other Claude sessions</td><td>no</td><td>no</td></tr>
+</table>
+<p>There is deliberately no "full access" mode: an unrestricted session driven from Slack would be a remote shell.</p>
+
+<h2 id="reviews">9. PR review drafts and posting</h2>
+<p>When someone requests your review on GitHub, the bot DMs you a <strong>draft review</strong>. Drafts never post anything on their own. Bot-started threads begin in read mode.</p>
+<p>To publish it:</p>
+<ol>
+<li>Reply <code>write</code> in the draft's thread.</li>
+<li>Reply <code>post inline</code> (or ask for edits first, e.g. "drop finding 3, then post inline").</li>
+</ol>
+<p>The bot posts a single review with event <strong>COMMENT</strong> (never approve or request changes). Before posting it checks that the PR hasn't moved past the commit it reviewed and that every inline comment sits on a changed line. If any check fails, nothing is posted and it tells you which comments to fix.</p>
+<p>Big PRs: the diff is read file by file, so line anchors come from the real diff, not a truncated one.</p>
+
+<h2 id="upgrade">10. Upgrade, status, logs</h2>
+<div class="cmd"><pre>brew update &amp;&amp; brew upgrade slack-claude &amp;&amp; slack-claude restart</pre></div>
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>slack-claude status</code></td><td>Running? Anything in flight?</td></tr>
+<tr><td><code>slack-claude start | stop | restart</code></td><td>Control the background service</td></tr>
+<tr><td><code>slack-claude logs</code></td><td>Follow the log</td></tr>
+<tr><td><code>slack-claude selftest "question"</code></td><td>One locked-down run without Slack</td></tr>
+<tr><td><code>slack-claude install-menubar</code></td><td>Add the SwiftBar menu-bar icon</td></tr>
+<tr><td><code>slack-claude version</code></td><td>Installed version</td></tr>
+</table>
+
+<h2 id="trouble">11. Troubleshooting</h2>
+<h3><code>brew tap</code>: Repository not found / Permission denied (publickey)</h3>
+<p>Accept the invites to both private repos, and make sure <code>ssh -T git@github.com</code> greets you. If you use HTTPS-only GitHub auth, add an SSH key: <code>gh ssh-key add ~/.ssh/id_ed25519.pub</code>.</p>
+<h3>The bot never replies</h3>
+<ul>
+<li>Run <code>slack-claude status</code> and <code>slack-claude logs</code>. You should see <code>slack-claude up</code>.</li>
+<li>Check the member ID in setup is <em>yours</em> (the bot ignores everyone else).</li>
+<li>Check the app is installed to the workspace and the app-level token has <code>connections:write</code>.</li>
+</ul>
+<h3>Service won't start right after an upgrade</h3>
+<p>macOS sometimes kills the first launch of a freshly upgraded binary. Kick it once or twice:</p>
+<div class="cmd"><pre>launchctl kickstart -k gui/$(id -u)/dev.slack-claude</pre></div>
+<h3>Read/Write buttons do nothing</h3>
+<p>Turn on <em>Interactivity &amp; Shortcuts</em> in your Slack app. Typing <code>read</code> or <code>write</code> in the thread always works.</p>
+<h3>A tool (Sentry, Jira…) isn't available</h3>
+<p>The bot only reuses MCP servers you've already connected and logged into in Claude Code. Log in there first, then <code>slack-claude restart</code>.</p>
+<h3>"PR head is now …" when posting a review</h3>
+<p>New commits landed after the draft. Ask it to re-read the diff and re-check its comments, then post again.</p>
+
+<h2 id="faq">12. FAQ</h2>
+<h3>Can teammates use my bot?</h3>
+<p>No. It ignores every message and reaction that isn't from your member ID. Each person sets up their own.</p>
+<h3>Does it post to Slack channels or on my behalf?</h3>
+<p>No. It only replies in your DM with your own bot. GitHub comments (write threads only) appear under your <code>gh</code> account.</p>
+<h3>What does it cost?</h3>
+<p>It uses your Claude plan. Each message has a budget cap (default $2, max $5), runs stop after 10 minutes by default, and automatic runs (review drafts, CI alerts) are capped at 10 per day.</p>
+<h3>Is anything exposed to the internet?</h3>
+<p>No inbound ports. Slack Socket Mode is an outbound websocket; the dashboard binds to 127.0.0.1 only. Slack tokens live in the Keychain.</p>
+<h3>How do I remove it?</h3>
+<div class="cmd"><pre>slack-claude stop
+brew uninstall slack-claude
+brew untap aldefy/private</pre></div>
+<p>Then delete your Slack app at <a href="https://api.slack.com/apps">api.slack.com/apps</a> and remove <code>~/.config/slack-claude</code>.</p>
+
+<footer>Questions or access requests: <a href="https://github.com/aldefy">@aldefy</a>.</footer>
+</main>
+<script>
+document.querySelectorAll('.cmd').forEach(function (box) {
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = 'Copy';
+  btn.addEventListener('click', function () {
+    var text = box.querySelector('pre').innerText;
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, function () {}); }
+  });
+  box.appendChild(btn);
+});
+</script>
+</body>
+</html>
