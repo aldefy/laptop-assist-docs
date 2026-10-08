@@ -7,47 +7,51 @@
 <meta name="description" content="Set up your own Slack bot that runs Claude Code on your Mac.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Doto:wght@600;800&family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-/* Nothing-inspired: monochrome, type-led, one red signal. Dark = OLED, light = printed manual. */
+/* Nothing-inspired hero (Doto), IBM Plex superfamily for reading: Sans for prose and headings, Mono only for commands, code and data. */
 :root {
   --bg: #000000; --surface: #111111; --raised: #1a1a1a;
   --border: #222222; --border-visible: #333333;
-  --t-disabled: #666666; --t-secondary: #999999; --t-primary: #e8e8e8; --t-display: #ffffff;
+  --t-disabled: #7a7a7a; --t-secondary: #a3a3a3; --t-primary: #e8e8e8; --t-display: #ffffff;
   --accent: #d71921; --success: #4a9e5c; --link: #5b9bf6;
-  --grotesk: "Space Grotesk", "DM Sans", system-ui, sans-serif;
-  --mono: "Space Mono", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
-  --dot: "Doto", "Space Mono", monospace;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SF Mono", Menlo, ui-monospace, monospace;
+  --dot: "Doto", "IBM Plex Mono", monospace;
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     --bg: #f5f5f5; --surface: #ffffff; --raised: #f0f0f0;
     --border: #e8e8e8; --border-visible: #cccccc;
-    --t-disabled: #8a8a8a; --t-secondary: #5c5c5c; --t-primary: #1a1a1a; --t-display: #000000;
+    --t-disabled: #6b6b6b; --t-secondary: #525252; --t-primary: #1a1a1a; --t-display: #000000;
     --link: #0062cc;
   }
 }
 :root[data-theme="light"] {
   --bg: #f5f5f5; --surface: #ffffff; --raised: #f0f0f0;
   --border: #e8e8e8; --border-visible: #cccccc;
-  --t-disabled: #8a8a8a; --t-secondary: #5c5c5c; --t-primary: #1a1a1a; --t-display: #000000;
+  --t-disabled: #6b6b6b; --t-secondary: #525252; --t-primary: #1a1a1a; --t-display: #000000;
   --link: #0062cc;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
-body { margin: 0; background: var(--bg); color: var(--t-primary); font: 400 16px/1.55 var(--grotesk); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--t-primary); font: 400 17px/1.65 var(--sans); letter-spacing: 0.005em; font-kerning: normal; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--t-display); color: var(--bg); }
+html { scrollbar-color: var(--border-visible) var(--bg); caret-color: var(--accent); }
+h2, h3, summary { text-wrap: balance; }
+p, li { text-wrap: pretty; }
 a { color: var(--link); text-decoration: none; }
-a:hover { text-decoration: underline; text-underline-offset: 3px; }
-code { font: 400 0.88em var(--mono); color: var(--t-display); background: var(--raised); padding: 1px 6px; border-radius: 4px; }
+a:hover { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+code { font: 400 0.86em var(--mono); font-variant-ligatures: none; color: var(--t-display); background: var(--raised); padding: 1px 6px; border-radius: 4px; }
 .step > *, .path > *, .facts > *, .faq > *, .flow > *, .cmds > *, .tokens > * { min-width: 0; }
 code { overflow-wrap: anywhere; }
 .cmds div { flex-wrap: wrap; }
 .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
 @media (min-width: 768px) { .wrap { padding: 0 32px; } }
 
-.label { font: 400 11px/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-secondary); }
+.label { font: 600 12px/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-secondary); }
 
 /* Top bar */
 .bar { border-bottom: 1px solid var(--border); }
@@ -57,25 +61,25 @@ code { overflow-wrap: anywhere; }
 /* Hero */
 .hero { padding: 72px 0 96px; background-image: radial-gradient(circle, var(--border-visible) 1px, transparent 1px); background-size: 16px 16px; background-position: -8px -8px; border-bottom: 1px solid var(--border); }
 .hero h1 { font: 800 clamp(48px, 11vw, 132px)/0.92 var(--dot); letter-spacing: -0.02em; color: var(--t-display); margin: 0 0 32px; background: var(--bg); display: inline-block; padding: 4px 8px 4px 0; }
-.hero p { font: 300 clamp(20px, 2.4vw, 26px)/1.35 var(--grotesk); max-width: 30ch; margin: 0 0 40px; background: var(--bg); padding-right: 8px; }
+.hero p { font: 400 clamp(20px, 2.2vw, 24px)/1.4 var(--sans); max-width: 32ch; color: var(--t-primary); margin: 0 0 40px; background: var(--bg); padding-right: 8px; }
 .btn { display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px; font: 700 13px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; background: var(--t-display); color: var(--bg); transition: opacity 200ms var(--ease); }
 .btn:hover { opacity: 0.85; text-decoration: none; }
 .btn:active { transform: translateY(1px); }
 
 /* Sections */
 section { padding: 96px 0; border-bottom: 1px solid var(--border); }
-h2 { font: 500 clamp(32px, 4.4vw, 48px)/1.05 var(--grotesk); letter-spacing: -0.02em; color: var(--t-display); margin: 0 0 16px; }
-h3 { font: 500 18px/1.3 var(--grotesk); color: var(--t-display); margin: 0 0 8px; }
-.lead { color: var(--t-secondary); font-size: 18px; max-width: 58ch; margin: 0 0 48px; }
-p { max-width: 65ch; }
+h2 { font: 600 clamp(34px, 4.6vw, 48px)/1.08 var(--sans); letter-spacing: -0.025em; color: var(--t-display); margin: 0 0 16px; }
+h3 { font: 600 20px/1.3 var(--sans); letter-spacing: -0.01em; color: var(--t-display); margin: 0 0 8px; }
+.lead { color: var(--t-secondary); font-size: 19px; line-height: 1.55; max-width: 56ch; margin: 0 0 48px; }
+p { max-width: 68ch; }
 
 /* How it works: signal path */
 .path { display: grid; grid-template-columns: 1fr; border: 1px solid var(--border-visible); border-radius: 12px; overflow: hidden; }
 .path > div { padding: 24px; border-bottom: 1px solid var(--border-visible); }
 .path > div:last-child { border-bottom: 0; }
 .path .label { display: block; margin-bottom: 24px; }
-.path strong { display: block; font: 500 22px/1.2 var(--grotesk); color: var(--t-display); margin-bottom: 8px; }
-.path span.d { color: var(--t-secondary); font-size: 15px; }
+.path strong { display: block; font: 600 20px/1.25 var(--sans); color: var(--t-display); margin-bottom: 8px; }
+.path span.d { color: var(--t-secondary); font-size: 16px; }
 @media (min-width: 768px) {
   .path { grid-template-columns: 1fr 1.3fr 1fr; }
   .path > div { border-bottom: 0; border-right: 1px solid var(--border-visible); }
@@ -90,17 +94,17 @@ p { max-width: 65ch; }
 .step { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 48px 0; border-top: 1px solid var(--border); }
 .step:first-child { border-top: 0; padding-top: 0; }
 @media (min-width: 900px) { .step { grid-template-columns: 220px 1fr; gap: 48px; } }
-.step .num { font: 400 13px/1 var(--mono); color: var(--t-disabled); letter-spacing: 0.08em; }
-.step .num b { display: block; font: 700 40px/1 var(--mono); color: var(--t-display); letter-spacing: -0.02em; margin-top: 12px; }
-.step h3 { font-size: 24px; letter-spacing: -0.01em; margin-bottom: 12px; }
+.step .num { font: 800 56px/0.9 var(--dot); color: var(--t-display); letter-spacing: -0.02em; }
+@media (max-width: 899px) { .step .num { font-size: 40px; } }
+.step h3 { font-size: 26px; line-height: 1.2; letter-spacing: -0.02em; margin: 4px 0 12px; }
 .step p, .step li { color: var(--t-primary); }
 .step ol, .step ul { padding-left: 20px; margin: 12px 0; }
 .step li { margin: 6px 0; max-width: 62ch; }
-.step li::marker { color: var(--t-disabled); font-family: var(--mono); font-size: 13px; }
+.step li::marker { color: var(--t-secondary); font-variant-numeric: tabular-nums; }
 .muted { color: var(--t-secondary) !important; }
 
 .cmd { position: relative; margin: 16px 0; max-width: 720px; }
-.cmd pre { margin: 0; background: var(--surface); border: 1px solid var(--border-visible); border-radius: 8px; padding: 16px 88px 16px 18px; overflow-x: auto; font: 400 14px/1.6 var(--mono); color: var(--t-display); }
+.cmd pre { margin: 0; background: var(--surface); border: 1px solid var(--border-visible); border-radius: 8px; padding: 16px 88px 16px 18px; overflow-x: auto; font: 400 14.5px/1.65 var(--mono); font-variant-ligatures: none; color: var(--t-display); }
 .cmd button { position: absolute; top: 10px; right: 10px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border-visible); background: transparent; color: var(--t-secondary); font: 400 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: color 150ms var(--ease), border-color 150ms var(--ease); }
 .cmd button:hover { color: var(--t-display); border-color: var(--t-secondary); }
 
@@ -110,46 +114,51 @@ p { max-width: 65ch; }
 @media (min-width: 640px) { .checks div { grid-template-columns: 1fr auto; gap: 24px; align-items: baseline; } }
 .checks code { background: transparent; padding: 0; color: var(--t-secondary); }
 
-.signal { border-left: 2px solid var(--accent); padding: 4px 0 4px 16px; margin: 20px 0; max-width: 62ch; }
+.signal { border-top: 1px solid var(--accent); padding: 14px 0 0; margin: 20px 0; max-width: 62ch; }
 .signal .label { color: var(--accent); display: block; margin-bottom: 6px; }
 
 .tokens { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0; max-width: 720px; }
 @media (min-width: 640px) { .tokens { grid-template-columns: 1fr 1fr; } }
 .tokens div { background: var(--surface); border: 1px solid var(--border-visible); border-radius: 8px; padding: 18px; }
-.tokens .val { font: 700 22px/1 var(--mono); color: var(--t-display); margin: 14px 0 10px; }
-.tokens p { margin: 0; color: var(--t-secondary); font-size: 15px; }
+.tokens .val { font: 600 22px/1 var(--mono); color: var(--t-display); margin: 14px 0 10px; }
+.tokens p { margin: 0; color: var(--t-secondary); font-size: 16px; }
 
 /* Modes */
-.modes { width: 100%; border-collapse: collapse; font-size: 15px; }
+.modes { width: 100%; border-collapse: collapse; font-size: 16px; }
 .modes th, .modes td { text-align: left; padding: 14px 16px 14px 0; vertical-align: top; }
 .modes thead th { border-bottom: 1px solid var(--border-visible); }
 .modes tbody td { border-bottom: 1px solid var(--border); }
 .modes tbody tr:last-child td { border-bottom: 0; }
-.modes td.v { font: 700 12px/1.6 var(--mono); letter-spacing: 0.08em; width: 90px; }
+.modes td.v { font: 600 13px/1.6 var(--mono); letter-spacing: 0.08em; width: 90px; }
 .yes { color: var(--success); }
 .no { color: var(--t-disabled); }
 .scroll-x { overflow-x: auto; }
 
 /* Review flow */
-.flow { display: grid; grid-template-columns: 1fr; gap: 0; margin: 48px 0 0; }
+.flow { display: grid; grid-template-columns: 1fr; gap: 0; margin: 0; }
 @media (min-width: 900px) { .flow { grid-template-columns: repeat(4, 1fr); } }
 .flow div { padding: 20px 20px 20px 0; border-top: 1px solid var(--border-visible); }
 @media (min-width: 900px) { .flow div { padding-right: 24px; } }
 .flow .label { display: block; margin: 12px 0 14px; }
-.flow .say { font: 700 18px/1.2 var(--mono); color: var(--t-display); }
-.flow p { color: var(--t-secondary); margin: 8px 0 0; font-size: 15px; }
+.flow .say { font: 600 19px/1.25 var(--mono); color: var(--t-display); }
+.flow p { color: var(--t-secondary); margin: 8px 0 0; font-size: 16px; }
 
 /* Commands */
 .cmds { display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 32px; }
 @media (min-width: 768px) { .cmds { grid-template-columns: 1fr 1fr; column-gap: 64px; } }
 .cmds div { display: flex; justify-content: space-between; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--border); }
 .cmds code { background: transparent; padding: 0; }
-.cmds span { color: var(--t-secondary); font-size: 15px; text-align: right; }
+.cmds span { color: var(--t-secondary); font-size: 16px; text-align: right; }
+
+/* Illustrations: hand-drawn on white paper, framed as a sheet on the dark page */
+.art { margin: 48px 0 0; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-visible); }
+.art img { display: block; width: 100%; height: auto; }
+.art.lead-art { margin: 0 0 48px; }
 
 /* Troubleshooting */
 details { border-top: 1px solid var(--border); max-width: 820px; }
 details:last-of-type { border-bottom: 1px solid var(--border); }
-summary { list-style: none; cursor: pointer; padding: 20px 0; display: flex; justify-content: space-between; gap: 24px; font: 500 18px/1.35 var(--grotesk); color: var(--t-display); }
+summary { list-style: none; cursor: pointer; padding: 20px 0; display: flex; justify-content: space-between; gap: 24px; font: 600 18px/1.4 var(--sans); color: var(--t-display); }
 summary::-webkit-details-marker { display: none; }
 summary::after { content: "+"; font: 400 20px/1 var(--mono); color: var(--t-secondary); }
 details[open] summary::after { content: "-"; }
@@ -188,6 +197,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <h2>How it works</h2>
     <p class="lead">There's no shared bot. Everyone runs their own copy, and each copy talks to exactly one person.</p>
 
+<figure class="art lead-art"><img src="img/01-private-local-loop.webp" width="1536" height="864" fetchpriority="high" decoding="async" alt="Hand-drawn illustration: a person holds one orange thread that runs into a locked laptop labelled local and owner only. Inside, a small black character takes the DM note off the thread and clips an answer back on, and the same thread returns to the same person."></figure>
     <div class="path">
       <div>
         <span class="label">Slack</span>
@@ -210,6 +220,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       <div><h3>It uses your accounts</h3><p>Claude usage counts against your plan. When it posts to GitHub (only in write threads), it posts as whoever is logged into <code>gh</code> on your Mac, which is you.</p></div>
       <div><h3>It sleeps when your Mac does</h3><p>Close the lid and the bot goes offline. Anything you sent in the meantime gets picked up after it reconnects.</p></div>
     </div>
+    <figure class="art"><img src="img/02-one-person-one-copy.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a small black character cuts a key from the owner’s ID for that owner’s accounts. Two other people have their own separate benches, and a shared bowl of keys is crossed out, labelled no sharing."></figure>
   </div>
 </section>
 
@@ -220,7 +231,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
     <ol class="steps">
       <li class="step" id="access">
-        <div class="num">Before anything<b>01</b></div>
+        <div class="num" aria-hidden="true">01</div>
         <div>
           <h3>Get access</h3>
           <p>The code and the Homebrew tap live in private repos. Send your GitHub username to <a href="https://github.com/aldefy">@aldefy</a> and ask for read access to <code>aldefy/slack-claude</code> and <code>aldefy/homebrew-private</code>.</p>
@@ -229,7 +240,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       </li>
 
       <li class="step" id="prereqs">
-        <div class="num">Check your Mac<b>02</b></div>
+        <div class="num" aria-hidden="true">02</div>
         <div>
           <h3>Have the basics ready</h3>
           <p>It's macOS only, since tokens go in the Keychain and the service runs under launchd.</p>
@@ -245,7 +256,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
       </li>
 
       <li class="step">
-        <div class="num">Homebrew<b>03</b></div>
+        <div class="num" aria-hidden="true">03</div>
         <div>
           <h3>Install</h3>
           <div class="cmd"><pre>brew tap aldefy/private git@github.com:aldefy/homebrew-private.git
@@ -254,7 +265,7 @@ brew install slack-claude</pre></div>
       </li>
 
       <li class="step" id="slack-app">
-        <div class="num">api.slack.com<b>04</b></div>
+        <div class="num" aria-hidden="true">04</div>
         <div>
           <h3>Create your Slack app</h3>
           <p>Copy the manifest to your clipboard:</p>
@@ -275,7 +286,7 @@ brew install slack-claude</pre></div>
       </li>
 
       <li class="step" id="setup">
-        <div class="num">Terminal<b>05</b></div>
+        <div class="num" aria-hidden="true">05</div>
         <div>
           <h3>Run setup</h3>
           <div class="cmd"><pre>slack-claude setup</pre></div>
@@ -293,7 +304,7 @@ brew install slack-claude</pre></div>
       </li>
 
       <li class="step">
-        <div class="num">Slack<b>06</b></div>
+        <div class="num" aria-hidden="true">06</div>
         <div>
           <h3>Say hello</h3>
           <p>Find your app under <strong>Apps</strong> in Slack and send it something real:</p>
@@ -310,6 +321,7 @@ brew install slack-claude</pre></div>
   <div class="wrap">
     <h2>Read or write</h2>
     <p class="lead">Each thread runs in one mode. A new DM asks which one you want; start the message with <code>read:</code> or <code>write:</code> to skip the question, and reply <code>read</code> or <code>write</code> later to switch.</p>
+<figure class="art lead-art"><img src="img/03-read-write-fenced.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: inside a roped-off pen, a small black character holds a read magnifier and a write pencil, while one foot holds a red bar shut in front of levers marked no push and no merge."></figure>
     <div class="scroll-x">
     <table class="modes">
       <thead><tr><th class="label">What it can do</th><th class="label">Read</th><th class="label">Write</th></tr></thead>
@@ -333,6 +345,7 @@ brew install slack-claude</pre></div>
   <div class="wrap">
     <h2>Review drafts, then posting</h2>
     <p class="lead">When someone requests your review on GitHub, a draft shows up in your DM. Nothing reaches GitHub until you say so.</p>
+<figure class="art lead-art"><img src="img/04-review-draft-posting.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a small black character holds a draft back, turns a write key and then a post inline key in a red mailbox, and gauges check the PR head and changed line before one comment envelope comes out."></figure>
     <div class="flow">
       <div><span class="label">Bot</span><div class="say">Draft arrives</div><p>Read mode. Findings with file and line, plus a verdict.</p></div>
       <div><span class="label">You</span><div class="say">write</div><p>Switches the thread so it's allowed to post.</p></div>
