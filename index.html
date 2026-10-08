@@ -331,14 +331,20 @@ brew install slack-claude</pre></div>
 <section id="ask">
   <div class="wrap">
     <h2>Ask from anywhere</h2>
-    <p class="lead">A teammate asks you something in a DM. You don't have to copy it over to your bot and paste the answer back.</p>
+    <p class="lead">A teammate asks you something in a DM or a thread. You don't have to copy it over to your bot and paste the answer back.</p>
     <div class="flow">
-      <div><span class="label">Any message</span><div class="say">⋯ → Ask Claude Laptop</div><p>Works in DMs with other people too. Add what you want, or leave it as "help me reply".</p></div>
-      <div><span class="label">Channel thread</span><div class="say">@your bot</div><p>Invite the bot to the channel once. It reads the thread for context.</p></div>
-      <div><span class="label">Only you</span><div class="say">Answer appears there</div><p>Nobody else in the conversation sees it. The full run stays in your bot DM for follow-ups.</p></div>
-      <div><span class="label">Your click</span><div class="say">Send as me</div><p>Posts the drafted reply as you, or edit it first. Nothing is sent without that click.</p></div>
+      <div><span class="label">Hover</span><div class="say">⋯ on the message</div><p>Any message: a DM with someone else, a channel, a thread.</p></div>
+      <div><span class="label">Menu</span><div class="say">Connect to apps</div><p>Then <strong>Ask Claude Laptop</strong>, listed under the bot name you picked in setup.</p></div>
+      <div><span class="label">Pop-up</span><div class="say">Say what you want</div><p>"Draft a reply", "is this PR fixed?", or leave it blank. Add <code>/humanizer</code> or any skill name to use it.</p></div>
+      <div><span class="label">Only you</span><div class="say">Answer in the thread</div><p>Nobody else sees it. <strong>Send as me</strong> posts the draft as you; <strong>Edit and send</strong> lets you change it first.</p></div>
     </div>
-    <p class="muted" style="margin-top:40px">Answers that only you can see disappear when Slack reloads; the copy in your bot DM stays. Anyone else who tags your bot is ignored.</p>
+    <ol style="margin-top:40px; padding-left:20px; max-width:68ch">
+      <li>Hover over the message and click <strong>⋯</strong> at the end of the little toolbar.</li>
+      <li>Choose <strong>Connect to apps ›</strong>, then <strong>Ask Claude Laptop</strong>. The first time, Slack may need a reload (<strong>Cmd+R</strong>) before it shows up. After a few uses Slack moves it higher in the menu.</li>
+      <li>A pop-up opens with the message quoted. Type what you want, or nothing, and click <strong>Ask</strong>.</li>
+      <li>In under a minute or two, an answer marked <em>Only visible to you</em> appears inside that thread. The full run and any follow-ups live in a thread in your bot DM.</li>
+    </ol>
+    <p class="muted">Answers land inside the thread when you've added the optional user token in setup (or later with <code>slack-claude user-token</code>); without it, Slack shows them at the bottom of the conversation. You can't <code>@</code>-tag your bot in a DM with someone else; Slack doesn't allow bots there, so use the ⋯ menu. In channels you've invited the bot to, <code>@</code>-mentioning it in a thread works too, but your message is visible to everyone. Only-you answers disappear when Slack reloads.</p>
   </div>
 </section>
 
