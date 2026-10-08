@@ -113,7 +113,7 @@ p { max-width: 68ch; }
 .signal .label { color: var(--accent); display: block; margin-bottom: 6px; }
 
 .tokens { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0; max-width: 720px; }
-@media (min-width: 640px) { .tokens { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 640px) { .tokens { grid-template-columns: repeat(3, 1fr); max-width: none; } }
 .tokens div { background: var(--surface); border: 1px solid var(--border-visible); border-radius: 8px; padding: 18px; }
 .tokens .val { font: 600 22px/1 var(--mono); color: var(--t-display); margin: 14px 0 10px; }
 .tokens p { margin: 0; color: var(--t-secondary); font-size: 16px; }
@@ -124,7 +124,7 @@ p { max-width: 68ch; }
 .modes thead th { border-bottom: 1px solid var(--border-visible); }
 .modes tbody td { border-bottom: 1px solid var(--border); }
 .modes tbody tr:last-child td { border-bottom: 0; }
-.modes td.v { font: 600 13px/1.6 var(--mono); letter-spacing: 0.08em; width: 90px; }
+.modes td.v { font: 600 13px/1.6 var(--mono); letter-spacing: 0.08em; width: 120px; white-space: nowrap; }
 .yes { color: var(--success); }
 .no { color: var(--t-disabled); }
 .scroll-x { overflow-x: auto; }
@@ -262,52 +262,40 @@ brew install slack-claude</pre></div>
         </div>
       </li>
 
-      <li class="step" id="slack-app">
-        <div class="num" aria-hidden="true">04</div>
-        <div>
-          <h3>Create your Slack app</h3>
-          <p>Copy the manifest to your clipboard:</p>
-          <div class="cmd"><pre>slack-claude manifest</pre></div>
-          <p>Before you paste it, change <code>name</code> and <code>display_name</code> from <code>Claude Laptop</code> to something with your name in it, like <code>Claude (Priya)</code>. If nobody does this, the workspace ends up with a dozen identical bots.</p>
-          <ol>
-            <li>Open <a href="https://api.slack.com/apps">api.slack.com/apps</a>, click <strong>Create New App</strong>, then <strong>From a manifest</strong>.</li>
-            <li>Pick the workspace, switch to <strong>YAML</strong>, paste, and click <strong>Create</strong>.</li>
-            <li>Click <strong>Install to Workspace</strong> and <strong>Allow</strong>. If your workspace needs admin approval for new apps, you'll wait here for an admin.</li>
-          </ol>
-          <p>Then collect two tokens:</p>
-          <div class="tokens">
-            <div><span class="label">App-level token</span><div class="val">xapp-…</div><p>Basic Information, then App-Level Tokens. Generate one with the <code>connections:write</code> scope.</p></div>
-            <div><span class="label">Bot token</span><div class="val">xoxb-…</div><p>OAuth &amp; Permissions. Copy the Bot User OAuth Token.</p></div>
-          </div>
-          <div class="signal"><span class="label">Treat both like passwords</span>Don't paste them into Slack, a ticket or a file. Setup puts them in your Keychain, and that's the only place they should live. Keep the app's Collaborators list to just you.</div>
-        </div>
-      </li>
-
       <li class="step" id="setup">
-        <div class="num" aria-hidden="true">05</div>
+        <div class="num" aria-hidden="true">04</div>
         <div>
           <h3>Run setup</h3>
           <div class="cmd"><pre>slack-claude setup</pre></div>
-          <p>It walks you through the rest:</p>
+          <p>It walks you through everything else, about ten minutes:</p>
           <ol>
-            <li>Checks that <code>claude</code>, <code>git</code> and <code>gh</code> are on your PATH.</li>
-            <li>Asks for both tokens. Input is hidden and goes straight into the Keychain.</li>
-            <li>Asks for your Slack member ID: profile, the <strong>⋯</strong> menu, <strong>Copy member ID</strong>. It looks like <code>U0123ABCD</code>, and it's the only person the bot will answer.</li>
-            <li>Asks for the absolute path of your repo, e.g. <code>/Users/you/code/app</code>.</li>
+            <li>Checks for <code>claude</code>, <code>git</code> and a logged-in <code>gh</code>.</li>
+            <li>Opens Slack's create-app page with the app already filled in and named after you, like <code>Claude (Priya)</code>. Pick the workspace, click <strong>Create</strong>, then <strong>Install to Workspace</strong>. If your workspace needs admin approval for new apps, you'll wait here for an admin.</li>
+            <li>Asks for the tokens from your new app's settings. Input is hidden and goes straight into the Keychain.</li>
+            <li>Finds your Slack account from your git email and asks you to confirm. That's the only person the bot will answer.</li>
+            <li>Asks for the repo Claude should work in.</li>
+            <li>Shows tools you already use in Claude Code and lets you pick extras for read and write threads.</li>
             <li>Runs a self-test (about $0.10). It tries to write a file, and if that write works, setup stops, because the sandbox would be broken.</li>
-            <li>Installs the background service so it starts at login, and offers a menu-bar icon if you have SwiftBar.</li>
+            <li>Installs the background service, and SwiftBar for a menu bar icon if you want one.</li>
           </ol>
-          <p class="muted">Settings live in <code>~/.config/slack-claude/config.json</code>: repo path, per-message budget (up to $5), timeout (up to 20 minutes), dashboard port.</p>
+          <div class="tokens">
+            <div><span class="label">App-level token</span><div class="val">xapp-…</div><p>Basic Information, then App-Level Tokens. Generate one with the <code>connections:write</code> scope.</p></div>
+            <div><span class="label">Bot token</span><div class="val">xoxb-…</div><p>OAuth &amp; Permissions. Copy the Bot User OAuth Token.</p></div>
+            <div><span class="label">User token, optional</span><div class="val">xoxp-…</div><p>Same page. Only used when you click <strong>Send as me</strong> on a drafted reply.</p></div>
+          </div>
+          <div class="signal"><span class="label">Treat tokens like passwords</span>Don't paste them into Slack, a ticket or a file. Setup puts them in your Keychain, and that's the only place they should live. Keep the app's Collaborators list to just you.</div>
+          <p class="muted">Settings live in <code>~/.config/slack-claude/config.json</code>: repo path, per-message budget (up to $5), timeout (up to 20 minutes), dashboard port. Run setup again any time; it keeps what you've already set.</p>
         </div>
       </li>
 
       <li class="step">
-        <div class="num" aria-hidden="true">06</div>
+        <div class="num" aria-hidden="true">05</div>
         <div>
           <h3>Say hello</h3>
           <p>Find your app under <strong>Apps</strong> in Slack and send it something real:</p>
           <div class="cmd"><pre>top 5 Sentry issues in the last 24h</pre></div>
-          <div class="cmd"><pre>review PR 1285 with android-pr-review</pre></div>
+          <div class="cmd"><pre>review PR 1285</pre></div>
+          <p>A new message asks read or write, and suggests skills that fit as buttons, so you never have to remember skill names. You can also just say it: "use the android pr review skill".</p>
           <p class="muted">Send <code>stop</code> in a thread to cancel a run and <code>status</code> to check health. Every answer ends with its time, cost, tokens and model. Thumbs-up or thumbs-down reactions feed the local dashboard at <a href="http://127.0.0.1:7317">127.0.0.1:7317</a>.</p>
         </div>
       </li>
@@ -329,6 +317,7 @@ brew install slack-claude</pre></div>
         <tr><td>Edit files, git add and commit locally</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
         <tr><td>Run unit tests and compile</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
         <tr><td>Comment on a PR, post a review with inline comments</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
+        <tr><td>Extra tools you picked with <code>slack-claude tools</code></td><td class="v yes">READ TOOLS</td><td class="v yes">YES</td></tr>
         <tr><td>Push, delete, reset, run any other shell command</td><td class="v no">NO</td><td class="v no">NO</td></tr>
         <tr><td>Approve or merge a PR</td><td class="v no">NO</td><td class="v no">NO</td></tr>
         <tr><td>Message your other Claude sessions</td><td class="v no">NO</td><td class="v no">NO</td></tr>
@@ -336,6 +325,20 @@ brew install slack-claude</pre></div>
     </table>
     </div>
     <p class="muted" style="margin-top:32px">There's no full-access mode on purpose. An unrestricted session you can drive from Slack is a remote shell into your laptop.</p>
+  </div>
+</section>
+
+<section id="ask">
+  <div class="wrap">
+    <h2>Ask from anywhere</h2>
+    <p class="lead">A teammate asks you something in a DM. You don't have to copy it over to your bot and paste the answer back.</p>
+    <div class="flow">
+      <div><span class="label">Any message</span><div class="say">⋯ → Ask Claude Laptop</div><p>Works in DMs with other people too. Add what you want, or leave it as "help me reply".</p></div>
+      <div><span class="label">Channel thread</span><div class="say">@your bot</div><p>Invite the bot to the channel once. It reads the thread for context.</p></div>
+      <div><span class="label">Only you</span><div class="say">Answer appears there</div><p>Nobody else in the conversation sees it. The full run stays in your bot DM for follow-ups.</p></div>
+      <div><span class="label">Your click</span><div class="say">Send as me</div><p>Posts the drafted reply as you, or edit it first. Nothing is sent without that click.</p></div>
+    </div>
+    <p class="muted" style="margin-top:40px">Answers that only you can see disappear when Slack reloads; the copy in your bot DM stays. Anyone else who tags your bot is ignored.</p>
   </div>
 </section>
 
@@ -357,7 +360,8 @@ brew install slack-claude</pre></div>
 <section id="commands">
   <div class="wrap">
     <h2>Day to day</h2>
-    <div class="cmd"><pre>brew update &amp;&amp; brew upgrade slack-claude &amp;&amp; slack-claude restart</pre></div>
+    <p class="lead">New versions announce themselves: your bot DMs you the release notes with an <strong>Update now</strong> button. Or from the terminal:</p>
+    <div class="cmd"><pre>slack-claude update</pre></div>
     <div class="cmds">
       <div><code>slack-claude status</code><span>Running, and what's in flight</span></div>
       <div><code>slack-claude logs</code><span>Follow the log</span></div>
@@ -365,6 +369,9 @@ brew install slack-claude</pre></div>
       <div><code>slack-claude version</code><span>What's installed</span></div>
       <div><code>slack-claude selftest "q"</code><span>One sandboxed run, no Slack</span></div>
       <div><code>slack-claude install-menubar</code><span>SwiftBar icon</span></div>
+      <div><code>slack-claude tools</code><span>Extra tools for read and write threads</span></div>
+      <div><code>slack-claude changelog</code><span>What changed lately</span></div>
+      <div><code>slack-claude user-token</code><span>Turn on Send as me</span></div>
     </div>
   </div>
 </section>
@@ -377,6 +384,11 @@ brew install slack-claude</pre></div>
       <summary>brew tap says "Repository not found" or "Permission denied (publickey)"</summary>
       <div><p>Either an invite isn't accepted yet or GitHub doesn't have your SSH key. <code>ssh -T git@github.com</code> should greet you by name. If you've only ever used HTTPS:</p>
       <div class="cmd"><pre>gh ssh-key add ~/.ssh/id_ed25519.pub</pre></div></div>
+    </details>
+    <details>
+      <summary>"Ask Claude Laptop" isn't in the ⋯ menu, or @-mentions do nothing</summary>
+      <div><p>Your app was created before these existed. Copy the current manifest, paste it into your app's <strong>App Manifest</strong> page, save, then <strong>Reinstall to Workspace</strong>. For @-mentions, also invite the bot to the channel.</p>
+      <div class="cmd"><pre>slack-claude manifest "Claude (your name)"</pre></div></div>
     </details>
     <details>
       <summary>The bot never replies</summary>
