@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
-<title>slack-claude setup</title>
-<meta name="description" content="Set up your own Slack bot that runs Claude Code on your Mac.">
+<title>laptop-assist</title>
+<meta name="description" content="Set up your own Slack bot that runs Claude Code or Codex on your Mac.">
+<link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
+<link rel="apple-touch-icon" href="img/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Doto:wght@800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -174,7 +176,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
 <header class="bar">
   <div class="wrap">
-    <span class="label" style="color:var(--t-display)">slack-claude</span>
+    <span class="label" style="color:var(--t-display)">laptop-assist</span>
     <a class="label" href="#install">Setup</a>
   </div>
 </header>
@@ -183,73 +185,105 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   <div class="wrap">
     <div>
     <h1>DM YOUR<br>LAPTOP.</h1>
-    <p>A Slack bot of your own that runs Claude Code on your Mac, in your repo, under your login.</p>
+    <p>A Slack bot of your own that runs Claude Code or Codex on your Mac, in your repo, with your own logins.</p>
     <a class="btn" href="#install">Start setup <span aria-hidden="true">&#8595;</span></a>
     </div>
     <figure class="hero-art"><img src="img/hero.webp" width="1448" height="1086" fetchpriority="high" decoding="async" alt="Line drawing of an open MacBook with a small red lock on its bezel. Two speech bubbles are wired to the screen: a message going in and a shorter reply coming out."></figure>
   </div>
 </div>
 
+<section id="why">
+  <div class="wrap">
+    <h2>Why this exists</h2>
+    <p class="lead">Your best agent setup is on your laptop: the repo with your uncommitted work, Claude Code logged in to your tools, your skills. Your questions arrive in Slack, often when you're away from that laptop. Nothing official connects the two.</p>
+    <div class="scroll-x">
+    <table class="modes">
+      <thead><tr><th class="label">Official option</th><th class="label">Runs on</th><th class="label">What's missing for this</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Claude in Slack</strong></td><td>Anthropic's cloud</td><td>Works on a fresh copy of the repo from GitHub, without your local tools or uncommitted work. Team and Enterprise plans, set up by a workspace owner. Channel replies are public.</td></tr>
+        <tr><td><strong>Claude Code on the web</strong></td><td>A cloud machine</td><td>The same: GitHub repos only, none of your local logins.</td></tr>
+        <tr><td><strong>Remote Control</strong></td><td>Your Mac</td><td>You drive it from the Claude app or website, not Slack, and only a session you already started.</td></tr>
+        <tr><td><strong>Codex in Slack</strong></td><td>OpenAI's cloud</td><td>Cloud tasks, not your machine.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-top:32px">laptop-assist is the missing piece: the question comes in through Slack, your own Mac does the work with the same agent you use at your desk, and the answer goes back to Slack. Use the official options when you want one shared bot for a whole channel, or long jobs that keep running with your laptop closed; this one sleeps when your Mac does.</p>
+  </div>
+</section>
+
 <section id="how">
   <div class="wrap">
     <h2>How it works</h2>
     <p class="lead">There's no shared bot. Everyone runs their own copy, and each copy talks to exactly one person.</p>
-
 <figure class="art lead-art"><img src="img/01-private-local-loop.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a person holds one orange thread that runs into a locked laptop labelled local and owner only. Inside, a small black character takes the DM note off the thread and clips an answer back on, and the same thread returns to the same person."></figure>
     <div class="path">
       <div>
         <span class="label">Slack</span>
         <strong>You DM your bot</strong>
-        <span class="d">It listens to your member ID and ignores everyone else.</span>
+        <span class="d">It answers your Slack account only and ignores everyone else.</span>
       </div>
       <div>
         <span class="label">Your Mac</span>
-        <strong>A locked-down Claude run starts</strong>
-        <span class="d">A background service picks the message up over an outbound websocket, so nothing on your laptop is exposed to the internet.</span>
+        <strong>A restricted agent starts</strong>
+        <span class="d">Claude Code or Codex, in your repo. A background program that starts at login picks the message up over a connection your Mac opens to Slack, so nothing on your laptop is reachable from the internet.</span>
       </div>
       <div>
         <span class="label">Thread</span>
         <strong>The answer lands in the thread</strong>
-        <span class="d">Reply there to keep going in the same session.</span>
+        <span class="d">Reply there to keep going in the same conversation.</span>
       </div>
     </div>
-
     <div class="facts">
-      <div><h3>It uses your accounts</h3><p>Claude usage counts against your plan. When it posts to GitHub (only in write threads), it posts as whoever is logged into <code>gh</code> on your Mac, which is you.</p></div>
-      <div><h3>It sleeps when your Mac does</h3><p>Close the lid and the bot goes offline. Anything you sent in the meantime gets picked up after it reconnects.</p></div>
+      <div><h3>It uses your accounts</h3><p>Claude runs count toward your own Claude plan; Codex runs toward your ChatGPT plan. Anything it posts to GitHub goes out under your <code>gh</code> login.</p></div>
+      <div><h3>It sleeps when your Mac does</h3><p>With the lid closed the bot is offline. When it reconnects it picks up the messages you sent it in the meantime (your recent DMs, and replies in threads from the last three days).</p></div>
     </div>
-    <figure class="art"><img src="img/02-one-person-one-copy.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a small black character cuts a key from the owner’s ID for that owner’s accounts. Two other people have their own separate benches, and a shared bowl of keys is crossed out, labelled no sharing."></figure>
+    <figure class="art"><img src="img/02-one-person-one-copy.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a small black character makes a key from one person's ID, for that person's accounts only. Two other people have their own separate benches, and a shared bowl of keys is crossed out, labelled no sharing."></figure>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <h2>What it can and can't do</h2>
+    <p class="lead">Slack becomes a remote control for your laptop, so the limits matter more than the features.</p>
+    <div class="faq">
+      <div><h3>Only you</h3><p>It ignores every message, reaction and button press that isn't from your Slack account.</p></div>
+      <div><h3>Read by default</h3><p>A new question can look but not change anything. Write is a choice you make per thread, and even then it never pushes, merges or approves.</p></div>
+      <div><h3>Nothing posted as you without your say-so</h3><p>Slack drafts appear only to you and go out only when you press <strong>Send as me</strong>. GitHub comments and reviews happen only in a write thread you started, when you ask for them (for review drafts: reply <code>write</code>, then <code>post inline</code>).</p></div>
+      <div><h3>Nothing reachable from the network</h3><p>Your Mac connects out to Slack. The only listener is a small local dashboard on 127.0.0.1, reachable from this Mac alone.</p></div>
+      <div><h3>Where your data goes</h3><p>Your question, the Slack messages it reads and the code it looks at go to Anthropic or OpenAI, under your plan, exactly as when you use Claude Code or Codex yourself. Nothing goes to the author of this tool. Update checks ask GitHub for the latest release, with your own <code>gh</code> login.</p></div>
+      <div><h3>Tokens stay in the Keychain</h3><p>Your Slack tokens live in the macOS Keychain, never in a file. Logs and history stay in <code>~/.config/laptop-assist</code> on your Mac.</p></div>
+    </div>
+    <p class="muted" style="margin-top:32px">One honest caution: the agent reads things other people wrote (Slack threads, PRs, issues). Someone could write instructions meant to steer it. Read threads can't change anything, so they're safe for that. In write threads, check what it plans to change before you let it commit, and keep write threads for your own work.</p>
   </div>
 </section>
 
 <section id="install">
   <div class="wrap">
-    <h2>Setup</h2>
-    <p class="lead">Plan on about 15 minutes. Most of that is clicking through Slack's app settings.</p>
-
+    <h2>Install and set up</h2>
+    <p class="lead">About 10 to 15 minutes once you have access. Have these ready: access to two private repos, a Slack workspace that lets you add apps (or an admin who will approve it), and the repo you want the bot to work in.</p>
     <ol class="steps">
-      <li class="step" id="access">
+      <li class="step">
         <div class="num" aria-hidden="true">01</div>
         <div>
           <h3>Get access</h3>
-          <p>The code and the Homebrew tap live in private repos. Send your GitHub username to <a href="https://github.com/aldefy">@aldefy</a> and ask for read access to <code>aldefy/slack-claude</code> and <code>aldefy/homebrew-private</code>.</p>
-          <p class="muted">GitHub emails you two invitations. Accept both before you install, or the tap will fail with "Repository not found".</p>
+          <p>laptop-assist is an internal tool, maintained by <a href="https://github.com/aldefy">@aldefy</a>. The code and its Homebrew tap (the source Homebrew installs it from) are private. Send your GitHub username and ask for read access to <code>aldefy/laptop-assist</code> and <code>aldefy/homebrew-private</code>.</p>
+          <p class="muted">GitHub emails you two invitations. Accept both before installing, or the install fails with "Repository not found".</p>
         </div>
       </li>
 
-      <li class="step" id="prereqs">
+      <li class="step">
         <div class="num" aria-hidden="true">02</div>
         <div>
-          <h3>Have the basics ready</h3>
-          <p>It's macOS only, since tokens go in the Keychain and the service runs under launchd.</p>
+          <h3>Check your Mac</h3>
+          <p>macOS only. Run each check in a terminal:</p>
           <div class="checks">
-            <div><span>Homebrew</span><code>brew --version</code></div>
-            <div><span>Claude Code, logged in</span><code>claude --version</code></div>
-            <div><span>GitHub CLI, logged in</span><code>gh auth status</code></div>
-            <div><span>SSH key on GitHub (the tap clones over SSH)</span><code>ssh -T git@github.com</code></div>
-            <div><span>The repo you want Claude in, cloned</span><code>pwd</code></div>
+            <div><span>Homebrew installed (prints a version)</span><code>brew --version</code></div>
+            <div><span>Claude Code installed; then run <code>claude</code> once and log in if asked</span><code>claude --version</code></div>
+            <div><span>GitHub CLI logged in (says "Logged in")</span><code>gh auth status</code></div>
+            <div><span>SSH key on GitHub (greets you by username)</span><code>ssh -T git@github.com</code></div>
+            <div><span>Optional: Codex, logged in, for the Codex agent</span><code>codex --version</code></div>
           </div>
-          <p class="muted">Already use Sentry, Jira, Mixpanel or Slack through MCP in Claude Code? The bot reuses those logins and only exposes their read and query tools.</p>
+          <p class="muted">No SSH key yet? Run <code>ssh-keygen -t ed25519</code>, then <code>gh ssh-key add ~/.ssh/id_ed25519.pub</code>. If your GitHub organization uses single sign-on, authorize the key for it on github.com. Already use Sentry, Crashlytics, Jira, Mixpanel or the Slack plugin in Claude Code? The bot reuses those logins, read and query tools only. Other tools you use in Claude Code can be allowed later with <code>laptop-assist tools</code>.</p>
         </div>
       </li>
 
@@ -258,45 +292,67 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
         <div>
           <h3>Install</h3>
           <div class="cmd"><pre>brew tap aldefy/private git@github.com:aldefy/homebrew-private.git
-brew install slack-claude</pre></div>
+brew install laptop-assist</pre></div>
         </div>
       </li>
 
-      <li class="step" id="setup">
+      <li class="step">
         <div class="num" aria-hidden="true">04</div>
         <div>
-          <h3>Run setup</h3>
-          <div class="cmd"><pre>slack-claude setup</pre></div>
-          <p>It walks you through everything else, about ten minutes:</p>
+          <h3>Create your Slack app</h3>
+          <div class="cmd"><pre>laptop-assist setup</pre></div>
+          <p>Setup first checks for Claude Code, which is required (it stops if missing), then git and gh. Then it creates your Slack app with you:</p>
           <ol>
-            <li>Checks for <code>claude</code>, <code>git</code> and a logged-in <code>gh</code>.</li>
-            <li>Opens Slack's create-app page with the app already filled in and named after you, like <code>Claude (Priya)</code>. Pick the workspace, click <strong>Create</strong>, then <strong>Install to Workspace</strong>. If your workspace needs admin approval for new apps, you'll wait here for an admin.</li>
-            <li>Asks for the tokens from your new app's settings. Input is hidden and goes straight into the Keychain.</li>
-            <li>Finds your Slack account from your git email and asks you to confirm. That's the only person the bot will answer.</li>
-            <li>Asks for the repo Claude should work in.</li>
-            <li>Shows tools you already use in Claude Code and lets you pick extras for read and write threads.</li>
-            <li>Runs a self-test (about $0.10). It tries to write a file, and if that write works, setup stops, because the sandbox would be broken.</li>
-            <li>Installs the background service, and SwiftBar for a menu bar icon if you want one.</li>
+            <li>It asks what to call your bot and suggests a default with your first name. This is the name you'll see in Slack, and the message-menu item becomes <strong>Ask &lt;that name&gt;</strong>.</li>
+            <li>It opens Slack's "create an app" page in your browser with a ready-made <em>manifest</em> (the app's name and the permissions it needs). If you're signed in to several workspaces, pick the right one. Click <strong>Next</strong> and <strong>Create</strong>.</li>
+            <li>Click <strong>Install to Workspace</strong>, then <strong>Allow</strong>. If your workspace requires admin approval, Slack shows "request sent" instead: leave setup and run it again after approval.</li>
           </ol>
+          <details style="max-width:720px">
+            <summary>What the app is allowed to do, and a message for your admin</summary>
+            <div>
+              <p>As a bot: read and reply in your DM with it, add and read reactions, upload long answers as files, look up people by name and email, read threads in channels it's invited to, and post in public channels (only used if you opt in to the weekly usage line). With your user token, if you add it: post as you (only when you click), read the conversations you're in when you ask about them, remove your own reactions, and search your messages (for catch-up and the opt-in voice note).</p>
+              <div class="cmd"><pre>Hi! I'd like to install a personal Slack app called "&lt;your bot's name&gt;" (made with the laptop-assist tool): a bot only I can talk to, which runs Claude Code or Codex on my own laptop and answers in my DM with it. It never posts on its own; anything posted as me needs my explicit action. Could you approve it when the request comes in?</pre></div>
+            </div>
+          </details>
+          <p style="margin-top:24px">Next, setup asks for three tokens. Leave the Slack page open; each one is a long string you copy and paste into the terminal. You won't see anything as you paste: that's normal, just press Return.</p>
           <div class="tokens">
-            <div><span class="label">App-level token</span><div class="val">xapp-…</div><p>Basic Information, then App-Level Tokens. Generate one with the <code>connections:write</code> scope.</p></div>
-            <div><span class="label">Bot token</span><div class="val">xoxb-…</div><p>OAuth &amp; Permissions. Copy the Bot User OAuth Token.</p></div>
-            <div><span class="label">User token, optional</span><div class="val">xoxp-…</div><p>Same page. Only used when you click <strong>Send as me</strong> on a drafted reply.</p></div>
+            <div><span class="label">1. App-level token</span><div class="val">xapp-…</div><p>Left sidebar <strong>Basic Information</strong>, scroll to <strong>App-Level Tokens</strong>, <strong>Generate Token and Scopes</strong>. Any name; add the <code>connections:write</code> scope; <strong>Generate</strong>.</p></div>
+            <div><span class="label">2. Bot token</span><div class="val">xoxb-…</div><p>Left sidebar <strong>OAuth &amp; Permissions</strong>. Copy the <strong>Bot User OAuth Token</strong>.</p></div>
+            <div><span class="label">3. User token, optional</span><div class="val">xoxp-…</div><p>Same page, <strong>User OAuth Token</strong>. Without it: no Send as me, draft emoji, morning catch-up or voice; asks can't read conversations the bot isn't in; and only-you answers land at the bottom of the conversation. Add it later with <code>laptop-assist user-token</code>.</p></div>
           </div>
-          <div class="signal"><span class="label">Treat tokens like passwords</span>Don't paste them into Slack, a ticket or a file. Setup puts them in your Keychain, and that's the only place they should live. Keep the app's Collaborators list to just you.</div>
-          <p class="muted">Settings live in <code>~/.config/slack-claude/config.json</code>: repo path, per-message budget (up to $5), timeout (up to 20 minutes), dashboard port. Run setup again any time; it keeps what you've already set.</p>
+          <div class="signal"><span class="label">Treat tokens like passwords</span>Don't paste them into Slack, a ticket or a file. Keep the app's Collaborators list to just you. You can revoke them any time from the same Slack pages.</div>
         </div>
       </li>
 
       <li class="step">
         <div class="num" aria-hidden="true">05</div>
         <div>
+          <h3>Finish setup</h3>
+          <ol>
+            <li>It finds your Slack account from your git email and asks you to confirm. If it can't, it asks for your member ID: in Slack, your profile, the <strong>⋯</strong> menu, <strong>Copy member ID</strong>.</li>
+            <li>It asks for the repo the bot should work in (the full path, like <code>/Users/you/code/app</code>), and explains read and write.</li>
+            <li>It lists extra tools from your own Claude Code settings that you could allow. If you're unsure, press Return to skip; <code>laptop-assist tools</code> does it later.</li>
+            <li>It asks three quick questions you can leave on their defaults: the draft emoji (default ▫️, called <code>white_small_square</code>), your terminal, and the morning catch-up time (09:00, or <code>off</code>). Each is explained further down.</li>
+            <li>It runs a self-test (about $0.10 of Claude usage). It asks the read-only agent to write a file. That should be refused; if the write works, setup stops, because the safety limits aren't working.</li>
+            <li>It installs the background program so the bot starts whenever you log in, and offers the menu bar icon.</li>
+          </ol>
+          <p class="muted">Settings live in <code>~/.config/laptop-assist/config.json</code>. Run <code>laptop-assist setup</code> again any time; it keeps your answers. Change single settings with <code>laptop-assist set</code>.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="num" aria-hidden="true">06</div>
+        <div>
           <h3>Say hello</h3>
-          <p>Find your app under <strong>Apps</strong> in Slack and send it something real:</p>
-          <div class="cmd"><pre>top 5 Sentry issues in the last 24h</pre></div>
-          <div class="cmd"><pre>review PR 1285</pre></div>
-          <p>A new message asks read or write, and suggests skills that fit as buttons, so you never have to remember skill names. You can also just say it: "use the android pr review skill".</p>
-          <p class="muted">Send <code>stop</code> in a thread to cancel a run and <code>status</code> to check health. Every answer ends with its time, cost, tokens and model. Thumbs-up or thumbs-down reactions feed the local dashboard at <a href="http://127.0.0.1:7317">127.0.0.1:7317</a>.</p>
+          <p>In Slack, find your bot under <strong>Apps</strong> (or search for its name) and send it something that needs only your repo:</p>
+          <div class="cmd"><pre>summarize the last 3 commits</pre></div>
+          <p>A card appears in the thread. Pick what you need, then press <strong>Run</strong>:</p>
+          <ul>
+            <li><strong>Skill</strong> (optional, empty to start): skills are reusable instructions you've added to Claude Code (in <code>~/.claude/skills</code> or your repo's <code>.claude/skills</code>). The list shows yours, best matches first, plus "No skill".</li>
+            <li><strong>Agent</strong>: Claude by default. This row appears only if Codex is installed on your Mac.</li>
+            <li><strong>Read or write</strong>: Read is preselected.</li>
+          </ul>
+          <p class="muted">Skip the card by starting a new message with <code>read:</code> or <code>write:</code> (or <code>codex read:</code> / <code>codex write:</code>). Name a skill directly with <code>/</code> and its exact name. In a thread you can also send <code>stop</code> (cancel the run), <code>read</code> or <code>write</code> (switch mode), <code>codex</code> or <code>claude</code> (switch agent). Anywhere: <code>status</code>, <code>version</code>, <code>update</code>, <code>catch up</code>. Every answer ends with how long it took and, when available, its cost and model; answers longer than Slack shows are attached as a file.</p>
         </div>
       </li>
     </ol>
@@ -305,79 +361,149 @@ brew install slack-claude</pre></div>
 
 <section id="modes">
   <div class="wrap">
-    <h2>Read or write</h2>
-    <p class="lead">Each thread runs in one mode. A new DM asks which one you want; start the message with <code>read:</code> or <code>write:</code> to skip the question, and reply <code>read</code> or <code>write</code> later to switch.</p>
+    <h2>Read or write, Claude or Codex</h2>
+    <p class="lead">Each thread runs in one mode with one agent. Read and Claude are the defaults.</p>
 <figure class="art lead-art"><img src="img/03-read-write-fenced.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: inside a roped-off pen, a small black character holds a read magnifier and a write pencil, while one foot holds a red bar shut in front of levers marked no push and no merge."></figure>
     <div class="scroll-x">
     <table class="modes">
-      <thead><tr><th class="label">What it can do</th><th class="label">Read</th><th class="label">Write</th></tr></thead>
+      <thead><tr><th class="label">With Claude</th><th class="label">Read</th><th class="label">Write</th></tr></thead>
       <tbody>
         <tr><td>Read code, search, git log, diff and blame</td><td class="v yes">YES</td><td class="v yes">YES</td></tr>
-        <tr><td>Query Sentry, analytics, Jira, read Slack</td><td class="v yes">YES</td><td class="v yes">YES</td></tr>
-        <tr><td>Edit files, git add and commit locally</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
-        <tr><td>Run unit tests and compile</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
+        <tr><td>Query Sentry, Crashlytics, Mixpanel, Jira; read Slack</td><td class="v yes">YES</td><td class="v yes">YES</td></tr>
+        <tr><td>Edit files; git add, commit, fetch, switch branch</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
+        <tr><td>Run unit tests and compile (out of the box: the Android/Gradle tasks; other test commands via <code>laptop-assist tools</code>)</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
         <tr><td>Comment on a PR, post a review with inline comments</td><td class="v no">NO</td><td class="v yes">YES</td></tr>
-        <tr><td>Extra tools you picked with <code>slack-claude tools</code></td><td class="v yes">READ TOOLS</td><td class="v yes">YES</td></tr>
-        <tr><td>Push, delete, reset, run any other shell command</td><td class="v no">NO</td><td class="v no">NO</td></tr>
+        <tr><td>Extra tools you allowed with <code>laptop-assist tools</code></td><td class="v yes">READ TOOLS</td><td class="v yes">YES</td></tr>
+        <tr><td>Push, delete files, reset, run other shell commands</td><td class="v no">NO</td><td class="v no">NO</td></tr>
         <tr><td>Approve or merge a PR</td><td class="v no">NO</td><td class="v no">NO</td></tr>
-        <tr><td>Message your other Claude sessions</td><td class="v no">NO</td><td class="v no">NO</td></tr>
       </tbody>
     </table>
     </div>
-    <p class="muted" style="margin-top:32px">There's no full-access mode on purpose. An unrestricted session you can drive from Slack is a remote shell into your laptop.</p>
+    <p style="margin-top:32px"><strong>Codex works differently.</strong> It can run any command, but inside its own sandbox: in a read thread nothing on disk can change; in a write thread it can change files inside the repo only, with network access off, so it can't push. The bot doesn't give it your Sentry, Jira or Slack tools, and it can't post to GitHub. Codex runs have no dollar cap, only the time limit.</p>
+    <p class="muted">There's no full-access mode in Slack on purpose: an unrestricted session you can drive from Slack would be a remote shell into your laptop. The bot can see a list of your other Claude Code sessions on this Mac (to answer "what are my sessions doing?") but can't send them anything.</p>
   </div>
 </section>
 
-<section id="ask">
+<section id="replies">
   <div class="wrap">
-    <h2>Ask from anywhere</h2>
-    <p class="lead">A teammate asks you something in a DM or a thread. You don't have to copy it over to your bot and paste the answer back.</p>
+    <h2>Replies without copy and paste</h2>
+    <p class="lead">A teammate asks you something. The bot reads the conversation, drafts a reply only you can see, and posts it as you only when you click. All of this works best with the user token.</p>
     <div class="flow">
-      <div><span class="label">Hover</span><div class="say">⋯ on the message</div><p>Any message: a DM with someone else, a channel, a thread.</p></div>
-      <div><span class="label">Menu</span><div class="say">Connect to apps</div><p>Then <strong>Ask Claude Laptop</strong>, listed under the bot name you picked in setup.</p></div>
-      <div><span class="label">Pop-up</span><div class="say">Say what you want</div><p>"Draft a reply", "is this PR fixed?", or leave it blank. Add <code>/humanizer</code> or any skill name to use it.</p></div>
-      <div><span class="label">Only you</span><div class="say">Answer in the thread</div><p>Nobody else sees it. <strong>Send as me</strong> posts the draft as you; <strong>Edit and send</strong> lets you change it first.</p></div>
+      <div><span class="label">Message menu</span><div class="say">⋯ → Connect to apps</div><p>On any message, then <strong>Ask &lt;your bot's name&gt;</strong>. Works in DMs with other people too.</p></div>
+      <div><span class="label">Emoji</span><div class="say">React with your draft emoji</div><p>▫️ (<code>white_small_square</code>) unless you picked another. The bot removes your reaction right away.</p></div>
+      <div><span class="label">Morning</span><div class="say">Catch-up at 09:00</div><p>Weekdays: up to 8 threads from the last day where someone mentioned you and you haven't replied, each with <strong>Draft reply</strong>. Send <code>catch up</code> for it any time.</p></div>
+      <div><span class="label">You decide</span><div class="say">Send as me</div><p>Or <strong>Edit and send</strong>, or <strong>Dismiss</strong>. Nothing goes out without your click.</p></div>
     </div>
-    <ol style="margin-top:40px; padding-left:20px; max-width:68ch">
-      <li>Hover over the message and click <strong>⋯</strong> at the end of the little toolbar.</li>
-      <li>Choose <strong>Connect to apps ›</strong>, then <strong>Ask Claude Laptop</strong>. The first time, Slack may need a reload (<strong>Cmd+R</strong>) before it shows up. After a few uses Slack moves it higher in the menu.</li>
-      <li>A pop-up opens with the message quoted. Type what you want, or nothing, and click <strong>Ask</strong>.</li>
-      <li>In under a minute or two, an answer marked <em>Only visible to you</em> appears inside that thread. The full run and any follow-ups live in a thread in your bot DM.</li>
+    <h3 style="margin-top:56px">From the message menu</h3>
+    <ol style="padding-left:20px; max-width:68ch">
+      <li>Hover over the message and click <strong>⋯</strong> at the end of the small toolbar.</li>
+      <li>Choose <strong>Connect to apps ›</strong>, then <strong>Ask &lt;your bot's name&gt;</strong>. If it isn't there the first time, reload Slack with <strong>Cmd+R</strong>.</li>
+      <li>A pop-up shows the message. Type what you want ("draft a reply", "is this fixed on main?") or leave it blank, and click <strong>Ask</strong>.</li>
+      <li>In a minute or two, an answer marked <em>Only visible to you</em> appears: inside the thread if the message was in one, otherwise at the bottom of the conversation. The full run stays in a thread in your DM with the bot, where you can follow up.</li>
     </ol>
-    <p class="muted">Answers land inside the thread when you've added the optional user token in setup (or later with <code>slack-claude user-token</code>); without it, Slack shows them at the bottom of the conversation. You can't <code>@</code>-tag your bot in a DM with someone else; Slack doesn't allow bots there, so use the ⋯ menu. In channels you've invited the bot to, <code>@</code>-mentioning it in a thread works too, but your message is visible to everyone. Only-you answers disappear when Slack reloads.</p>
+    <div class="facts" style="margin-top:40px">
+      <div><h3>Messaging someone</h3><p>Send your bot <code>message &lt;their name&gt;: &lt;your text&gt;</code> and the send card appears straight away. Or ask it to write one ("message Priya that the build is out") and check the draft. It sends to people, not channels or groups; if several people match the name, you get a card for each, so press send on the right one.</p></div>
+      <div><h3>Your voice, if you want it</h3><p>Run <code>laptop-assist voice</code> to have it read your recent Slack messages and write a short note on how you write. You see the note and approve it before drafts use it; only the note is kept (<code>voice --show</code>, <code>voice --delete</code>). Off until you run it.</p></div>
+    </div>
+    <p class="muted" style="margin-top:32px">Drafts see the thread or DM they came from, including what you already said there. In channels you've invited the bot to, you can also <code>@</code>-mention it in a thread, but your message is visible to everyone. Slack doesn't let bots into DMs between people, so use the message menu there. Answers marked <em>Only visible to you</em> disappear when Slack reloads; the copy in your DM with the bot stays.</p>
   </div>
 </section>
 
 <section id="reviews">
   <div class="wrap">
-    <h2>Review drafts, then posting</h2>
-    <p class="lead">When someone requests your review on GitHub, a draft shows up in your DM. Nothing reaches GitHub until you say so.</p>
+    <h2>Review drafts, then post</h2>
+    <p class="lead">When someone requests your review on GitHub, a draft review shows up in your DM with the bot. Nothing reaches GitHub until you say so.</p>
 <figure class="art lead-art"><img src="img/04-review-draft-posting.webp" width="1536" height="864" loading="lazy" decoding="async" alt="Hand-drawn illustration: a small black character holds a draft back, turns a write key and then a post inline key in a red mailbox, and gauges check the PR head and changed line before one comment envelope comes out."></figure>
     <div class="flow">
-      <div><span class="label">Bot</span><div class="say">Draft arrives</div><p>Read mode. Findings with file and line, plus a verdict.</p></div>
+      <div><span class="label">Bot</span><div class="say">Draft arrives</div><p>In read mode. Findings with file and line, plus a verdict.</p></div>
       <div><span class="label">You</span><div class="say">write</div><p>Switches the thread so it's allowed to post.</p></div>
       <div><span class="label">You</span><div class="say">post inline</div><p>Or ask for changes first: "drop finding 3, then post inline".</p></div>
       <div><span class="label">GitHub</span><div class="say">One COMMENT review</div><p>Never an approval or a change request.</p></div>
     </div>
-    <p style="margin-top:40px">Before anything goes up, it checks that the PR hasn't moved past the commit it reviewed and that every inline comment points at a changed line. If one check fails, it posts nothing and tells you which comments to fix. Large PRs get read one file at a time, so the line numbers come from the real diff.</p>
+    <p style="margin-top:40px">Before anything goes up, it checks that the PR hasn't moved past the commit it reviewed and that every inline comment points at a line inside the diff. If a check fails, it posts nothing and tells you which comments to fix.</p>
+    <p class="muted">The bot checks GitHub every few minutes with your <code>gh</code> login. It also DMs you when CI fails on one of your PRs (reply <code>investigate</code>). Automatic drafts stop at 10 a day. Turn either off with <code>laptop-assist set reviewDrafts off</code> or <code>laptop-assist set ciAlerts off</code>.</p>
+  </div>
+</section>
+
+<section id="terminal">
+  <div class="wrap">
+    <h2>Slack to terminal, and back</h2>
+    <p class="lead">Some answers are too long for Slack, and some work is easier at a keyboard. Every answer has a <strong>Continue in terminal</strong> button that opens the same conversation on your Mac.</p>
+    <div class="flow">
+      <div><span class="label">Slack</span><div class="say">Continue in terminal</div><p>On any answer. The bot also suggests it when an answer was cut short or a run didn't finish.</p></div>
+      <div><span class="label">Your Mac</span><div class="say">Same conversation opens</div><p>A new window or tab in your terminal, in your repo, with everything so far.</p></div>
+      <div><span class="label">Meanwhile</span><div class="say">Slack waits</div><p>Replies in that thread say it's open in your terminal instead of starting a second copy.</p></div>
+      <div><span class="label">Done</span><div class="say">Back in Slack</div><p>Quit, or close the window. The thread gets a note, and your next reply there carries on from what you did.</p></div>
+    </div>
+    <p class="muted" style="margin-top:32px">In the terminal it's your normal Claude Code or Codex, with your usual permissions, not the restricted Slack mode: you're at the keyboard.</p>
+    <h3 style="margin-top:40px">Pick your terminal</h3>
+    <p>Setup asks which one you use. Change it any time:</p>
+    <div class="cmd"><pre>laptop-assist terminal &lt;name&gt;</pre></div>
+    <p class="muted">Run it without a name to see what's installed and what's set. With nothing set it uses the first installed of cmux, iTerm, Ghostty, WezTerm, kitty and Terminal. If one can't open, it tries the next; as a last resort it posts the command in the thread for you to paste.</p>
+    <div class="scroll-x">
+    <table class="modes">
+      <thead><tr><th class="label">Terminal</th><th class="label">Ready?</th><th class="label">One-time step</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Terminal</strong> (built into macOS)</td><td class="v yes">YES</td><td>The first time, macOS asks whether laptop-assist may control Terminal (it opens a window for you; nothing else). Click OK.</td></tr>
+        <tr><td><strong>iTerm2</strong></td><td class="v yes">YES</td><td>The same macOS question, for iTerm. Click OK.</td></tr>
+        <tr><td><strong>cmux</strong></td><td class="v no">ONE SETTING</td><td>cmux only takes commands from programs running inside it, and the bot runs in the background. In cmux: Settings, Automation, set Socket Control Mode to <strong>Password</strong>, type a password and press Return. Then run <code>laptop-assist terminal cmux</code> and enter the same password; it goes in your Keychain.</td></tr>
+        <tr><td><strong>Ghostty</strong>, <strong>WezTerm</strong>, <strong>kitty</strong></td><td class="v yes">YES</td><td>None.</td></tr>
+        <tr><td><strong>Warp</strong></td><td class="v no">PASTE</td><td>Warp can't be given a command to run, so it opens in your repo and the bot posts the command in the thread for you to paste.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="muted" style="margin-top:24px">Clicked "Don't Allow" on the macOS question? System Settings, Privacy &amp; Security, Automation, and turn laptop-assist on for your terminal.</p>
+  </div>
+</section>
+
+<section id="menubar">
+  <div class="wrap">
+    <h2>The menu bar icon (optional)</h2>
+    <p class="lead">The bot runs in the background with no window, so you can't tell at a glance whether it's up or busy. <a href="https://github.com/swiftbar/SwiftBar">SwiftBar</a> is a small, free, open-source Mac app that lets tools put an item in the menu bar; laptop-assist uses it for a status icon.</p>
+    <div class="facts" style="margin-top:32px">
+      <div><h3>What it shows</h3><p>Whether the bot is running; each question in progress with its agent, its last few steps as they happen, and a stop button; runs and cost for today and the week; your last 10 questions, each with <strong>Open thread</strong> and <strong>Continue in terminal</strong>; and buttons to restart, open the log and open a local dashboard.</p></div>
+      <div><h3>Do you need it?</h3><p>No. Everything works without it. <code>laptop-assist status</code> shows whether it's running and what's in progress, and sending <code>status</code> to the bot shows today's runs and cost.</p></div>
+    </div>
+    <p style="margin-top:32px">Setup offers to install it. To add it later:</p>
+    <div class="cmd"><pre>brew install --cask swiftbar
+laptop-assist install-menubar</pre></div>
+    <p class="muted">The icon refreshes every 10 seconds from files on your Mac, so it doesn't talk to Slack or cost anything.</p>
   </div>
 </section>
 
 <section id="commands">
   <div class="wrap">
-    <h2>Day to day</h2>
+    <h2>Commands and updates</h2>
     <p class="lead">New versions announce themselves: your bot DMs you the release notes with an <strong>Update now</strong> button. Or from the terminal:</p>
-    <div class="cmd"><pre>slack-claude update</pre></div>
+    <div class="cmd"><pre>laptop-assist update</pre></div>
     <div class="cmds">
-      <div><code>slack-claude status</code><span>Running, and what's in flight</span></div>
-      <div><code>slack-claude logs</code><span>Follow the log</span></div>
-      <div><code>slack-claude restart</code><span>Also start and stop</span></div>
-      <div><code>slack-claude version</code><span>What's installed</span></div>
-      <div><code>slack-claude selftest "q"</code><span>One sandboxed run, no Slack</span></div>
-      <div><code>slack-claude install-menubar</code><span>SwiftBar icon</span></div>
-      <div><code>slack-claude tools</code><span>Extra tools for read and write threads</span></div>
-      <div><code>slack-claude changelog</code><span>What changed lately</span></div>
-      <div><code>slack-claude user-token</code><span>Turn on Send as me</span></div>
+      <div><code>laptop-assist status</code><span>Running, and what's in progress</span></div>
+      <div><code>laptop-assist logs</code><span>Follow the log</span></div>
+      <div><code>laptop-assist restart</code><span>Also start and stop</span></div>
+      <div><code>laptop-assist version</code><span>What's installed</span></div>
+      <div><code>laptop-assist changelog</code><span>What changed lately</span></div>
+      <div><code>laptop-assist setup</code><span>Run setup again; keeps your answers</span></div>
+      <div><code>laptop-assist set &lt;key&gt; &lt;value&gt;</code><span>reviewDrafts, ciAlerts, morningAt, draftEmoji, budgetUsd, timeoutMin</span></div>
+      <div><code>laptop-assist tools</code><span>Extra tools for read and write threads</span></div>
+      <div><code>laptop-assist terminal [name]</code><span>Which terminal opens on handoff</span></div>
+      <div><code>laptop-assist user-token</code><span>Add or replace your user token</span></div>
+      <div><code>laptop-assist voice</code><span>Learn how you write, with your approval</span></div>
+      <div><code>laptop-assist manifest "name"</code><span>Copy your app's current manifest</span></div>
+      <div><code>laptop-assist install-menubar</code><span>The SwiftBar icon</span></div>
+      <div><code>laptop-assist team-stats &lt;channel ID&gt;</code><span>Opt in to a weekly usage line (<code>off</code> to stop)</span></div>
+      <div><code>laptop-assist uninstall</code><span>Remove it from this Mac</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <h2>Coming next</h2>
+    <p class="lead">Not built yet. Tell <a href="https://github.com/aldefy">@aldefy</a> which you'd use first.</p>
+    <div class="faq">
+      <div><h3>More models</h3><p>DeepSeek, OpenRouter and other providers that speak the Anthropic API, running inside Claude Code so they keep the same tools, skills and read/write rules. Each provider bills its own usage.</p></div>
+      <div><h3>More agent tools</h3><p>Codex with other providers, including local models through Ollama, and other command-line agents once they have a safe non-interactive mode.</p></div>
+      <div><h3>Your ideas</h3><p>Send them to <a href="https://github.com/aldefy">@aldefy</a>, or ask your bot to draft the message.</p></div>
     </div>
   </div>
 </section>
@@ -385,33 +511,54 @@ brew install slack-claude</pre></div>
 <section id="trouble">
   <div class="wrap">
     <h2>When it breaks</h2>
-    <p class="lead">The usual suspects, roughly in the order people hit them.</p>
+    <p class="lead">Common problems, roughly in the order people hit them.</p>
     <details>
       <summary>brew tap says "Repository not found" or "Permission denied (publickey)"</summary>
-      <div><p>Either an invite isn't accepted yet or GitHub doesn't have your SSH key. <code>ssh -T git@github.com</code> should greet you by name. If you've only ever used HTTPS:</p>
-      <div class="cmd"><pre>gh ssh-key add ~/.ssh/id_ed25519.pub</pre></div></div>
+      <div><p>An invitation isn't accepted yet, or GitHub doesn't have your SSH key. <code>ssh -T git@github.com</code> should greet you by username. To add a key:</p>
+      <div class="cmd"><pre>ssh-keygen -t ed25519
+gh ssh-key add ~/.ssh/id_ed25519.pub</pre></div></div>
     </details>
     <details>
-      <summary>"Ask Claude Laptop" isn't in the ⋯ menu, or @-mentions do nothing</summary>
-      <div><p>Your app was created before these existed. Copy the current manifest, paste it into your app's <strong>App Manifest</strong> page, save, then <strong>Reinstall to Workspace</strong>. For @-mentions, also invite the bot to the channel.</p>
-      <div class="cmd"><pre>slack-claude manifest "Claude (your name)"</pre></div></div>
+      <summary>Slack says "request sent" when you click Install</summary>
+      <div><p>Your workspace requires admin approval for new apps. Send your admin the message under step 04, then run <code>laptop-assist setup</code> again once it's approved.</p></div>
+    </details>
+    <details>
+      <summary>Setup rejects a token, or the bot logs "invalid_auth"</summary>
+      <div><p>The three tokens look alike, so it's easy to paste one into the wrong prompt. App-level starts with <code>xapp-</code>, bot with <code>xoxb-</code>, user with <code>xoxp-</code>. Run <code>laptop-assist setup</code> again and paste each into its own prompt.</p></div>
     </details>
     <details>
       <summary>The bot never replies</summary>
-      <div><p>Run <code>slack-claude status</code> and <code>slack-claude logs</code> and look for <code>slack-claude up</code>. If it's up, the member ID from setup is probably wrong (it has to be yours), or the app-level token is missing the <code>connections:write</code> scope.</p></div>
+      <div><p>Run <code>laptop-assist status</code> and <code>laptop-assist logs</code> and look for <code>laptop-assist up</code>. If it's up: check that setup confirmed <em>your</em> Slack account, and that the app-level token has <code>connections:write</code>. If Slack says "Sending messages to this app has been turned off", open your app's <strong>App Home</strong> page and turn on the Messages tab.</p></div>
     </details>
     <details>
-      <summary>The service won't start right after an upgrade</summary>
-      <div><p>macOS tends to kill the first launch of a freshly upgraded binary. Kick it, and if needed kick it again:</p>
-      <div class="cmd"><pre>launchctl kickstart -k gui/$(id -u)/dev.slack-claude</pre></div></div>
+      <summary>Every answer fails with a login or "not authenticated" error</summary>
+      <div><p>The background program uses the same Claude Code login as your terminal. Run <code>claude</code> in a terminal, log in, then <code>laptop-assist restart</code>.</p></div>
     </details>
     <details>
-      <summary>The Read and Write buttons don't do anything</summary>
-      <div><p>Turn on Interactivity &amp; Shortcuts in your Slack app's settings. Typing <code>read</code> or <code>write</code> in the thread works either way.</p></div>
+      <summary>Your bot DMs you about new Slack permissions</summary>
+      <div><p>Some updates add features that need more permissions. Until you do this, everything else keeps working.</p>
+      <ol>
+        <li>Run <code>laptop-assist manifest "your bot's name"</code>. It copies the new manifest to your clipboard.</li>
+        <li>On api.slack.com/apps, open your app, then <strong>App Manifest</strong> in the left sidebar. Select all the text in the box, paste, <strong>Save Changes</strong>.</li>
+        <li><strong>Install App</strong> in the sidebar, <strong>Reinstall to Workspace</strong>, <strong>Allow</strong>. Your workspace may ask for approval again.</li>
+        <li>Copy the <strong>User OAuth Token</strong> from that page and run <code>laptop-assist user-token</code>.</li>
+      </ol></div>
+    </details>
+    <details>
+      <summary>"Ask &lt;your bot&gt;" isn't in the ⋯ menu, or @-mentions do nothing</summary>
+      <div><p>Reload Slack with <strong>Cmd+R</strong>. If it's still missing, your app needs the current manifest (the item above). For @-mentions, invite the bot to the channel first.</p></div>
+    </details>
+    <details>
+      <summary>Only-you answers appear at the bottom of the conversation, not in the thread</summary>
+      <div><p>Expected for a message that isn't in a thread. For one that is, it happens when the bot isn't in that conversation and you haven't added the user token: add it with <code>laptop-assist user-token</code>.</p></div>
+    </details>
+    <details>
+      <summary>The bot doesn't start right after an update</summary>
+      <div><p>macOS sometimes stops the first launch of a freshly updated program. Run <code>laptop-assist restart</code>, twice if needed.</p></div>
     </details>
     <details>
       <summary>Sentry, Jira or another tool isn't available</summary>
-      <div><p>The bot only reuses MCP servers you've already connected and logged into inside Claude Code. Log in there, then run <code>slack-claude restart</code>.</p></div>
+      <div><p>The bot only reuses tools you've already connected and logged into in Claude Code. Log in there, then <code>laptop-assist restart</code>. Tools beyond Sentry, Crashlytics, Mixpanel, Jira and Slack need <code>laptop-assist tools</code>.</p></div>
     </details>
     <details>
       <summary>Posting a review fails with "PR head is now …"</summary>
@@ -424,20 +571,24 @@ brew install slack-claude</pre></div>
   <div class="wrap">
     <h2>Questions people ask</h2>
     <div class="faq">
-      <div><h3>Can a teammate use my bot?</h3><p>No. It drops every message and reaction that isn't from your member ID, so they'll need their own.</p></div>
-      <div><h3>Does it post in channels?</h3><p>Never. In Slack it only replies inside your DM with your bot.</p></div>
-      <div><h3>What will it cost me?</h3><p>Whatever your Claude plan charges for the runs. Each message is capped at $2 by default (you can raise it to $5), runs time out after 10 minutes, and automatic runs like review drafts stop at 10 a day.</p></div>
-      <div><h3>How do I remove it?</h3><p><code>slack-claude stop</code>, <code>brew uninstall slack-claude</code>, <code>brew untap aldefy/private</code>, delete <code>~/.config/slack-claude</code>, then delete the app at api.slack.com.</p></div>
+      <div><h3>Can a teammate use my bot?</h3><p>No. It ignores everyone but you, so they set up their own. Each person's bot has its own name, so several can live in one workspace.</p></div>
+      <div><h3>Does it post anywhere on its own?</h3><p>Never to anyone but you. It messages you in your DM with it (answers, review drafts, alerts, catch-up), and answers it shows elsewhere are visible only to you. Anything posted as you needs your explicit action: a click in Slack, or <code>post inline</code> for a GitHub review. The only automatic post is the weekly usage line, and only if you turn it on.</p></div>
+      <div><h3>What will it cost?</h3><p>Claude runs count toward your Claude plan and share its usage limits with your normal Claude Code use. Each one is capped at $2 by default (up to $5) and times out after 10 minutes (up to 20). Codex runs use your ChatGPT plan and have only the time limit.</p></div>
+      <div><h3>Can it work on more than one repo?</h3><p>One repo per install. Run <code>laptop-assist setup</code> again to switch.</p></div>
+      <div><h3>What does it keep?</h3><p>Run history, logs and settings in <code>~/.config/laptop-assist</code> and <code>~/Library/Logs/laptop-assist.log</code>, on your Mac only. Logs include the first part of each question.</p></div>
+      <div><h3>How do I remove it?</h3><p>Run <code>laptop-assist uninstall</code> (service, Keychain items, menu bar icon, log, and your settings if you say yes), then <code>brew uninstall laptop-assist</code>, then delete your app on api.slack.com (your app, Basic Information, Delete App).</p></div>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span class="label">slack-claude</span>
+    <span class="label">laptop-assist</span>
     <span class="label">Access and questions: <a href="https://github.com/aldefy">@aldefy</a></span>
   </div>
 </footer>
+
+
 
 <script>
 document.querySelectorAll('.cmd').forEach(function (box) {
